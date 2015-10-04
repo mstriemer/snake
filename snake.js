@@ -72,11 +72,17 @@ function initializeBoard() {
 }
 
 function renderGame(game) {
-  let rendered = renderBoard(game.board);
   while (document.body.firstChild) {
     document.body.removeChild(document.body.firstChild);
   }
-  document.body.appendChild(rendered);
+  if (game.gameOver) {
+    let el = document.createElement('h1');
+    el.textContent = 'Game Over';
+    document.body.appendChild(el);
+  } else {
+    let rendered = renderBoard(game.board);
+    document.body.appendChild(rendered);
+  }
 }
 
 function findHead({ board, snakeSize }) {
@@ -107,12 +113,15 @@ function findNewHead(gameState) {
 }
 
 function nextGameState(lastGameState, direction) {
-  let { board, snakeSize } = lastGameState;
+  let { board, gameOver, snakeSize } = lastGameState;
   let newHead = findNewHead(lastGameState);
   let newBoard = [];
   let growthFactor;
-  if (board[newHead.row][newHead.col] === TILES.FOOD) {
+  let eatenTile = board[newHead.row][newHead.col];
+  if (eatenTile === TILES.FOOD) {
     growthFactor = 1;
+  } else if (eatenTile < 0) {
+    gameOver = true;
   } else {
     growthFactor = 0;
   }
@@ -134,6 +143,7 @@ function nextGameState(lastGameState, direction) {
   return {
     board: newBoard,
     direction,
+    gameOver,
     snakeSize: snakeSize + growthFactor,
   };
 }
@@ -145,6 +155,7 @@ function playGame() {
     board: initializeBoard(),
     direction,
     snakeSize: INITIAL_SNAKE_SIZE,
+    gameOver: false,
   });
   renderGame(states[0]);
   document.addEventListener('keydown', function(e) {
@@ -159,7 +170,7 @@ function playGame() {
       direction = DIR.LEFT;
     }
   });
-  setInterval(function() {
+  let interval = setInterval(function() {
     states.unshift(nextGameState(states[0], direction));
     renderGame(states[0]);
   }, 500);
