@@ -143,13 +143,14 @@ function playGame() {
   });
   renderGame(states[0]);
   document.addEventListener('keydown', function(e) {
-    if (e.keyCode === KEYS.UP) {
+    let lastDirection = states[0].direction;
+    if (e.keyCode === KEYS.UP && lastDirection !== DIR.DOWN) {
       direction = DIR.UP;
-    } else if (e.keyCode === KEYS.RIGHT) {
+    } else if (e.keyCode === KEYS.RIGHT && lastDirection !== DIR.LEFT) {
       direction = DIR.RIGHT;
-    } else if (e.keyCode === KEYS.DOWN) {
+    } else if (e.keyCode === KEYS.DOWN && lastDirection !== DIR.UP) {
       direction = DIR.DOWN;
-    } else if (e.keyCode === KEYS.LEFT) {
+    } else if (e.keyCode === KEYS.LEFT && lastDirection !== DIR.RIGHT) {
       direction = DIR.LEFT;
     }
   });
