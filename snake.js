@@ -106,31 +106,36 @@ function findNewHead(gameState) {
   return newHead;
 }
 
-function nextBoard(gameState) {
-  let { board, direction, snakeSize } = gameState;
-  let newHead = findNewHead(gameState);
+function nextGameState(lastGameState, direction) {
+  let { board, snakeSize } = lastGameState;
+  let newHead = findNewHead(lastGameState);
   let newBoard = [];
+  let growthFactor;
+  if (board[newHead.row][newHead.col] === TILES.FOOD) {
+    growthFactor = 1;
+  } else {
+    growthFactor = 0;
+  }
   for (let row=0; row < BOARD_SIZE; row++) {
     newBoard[row] = [];
     for (let col=0; col < BOARD_SIZE; col++) {
       if (newHead.row === row && newHead.col === col) {
-        newBoard[row][col] = -snakeSize;
+        newBoard[row][col] = -snakeSize - growthFactor;
       } else if (board[row][col] < 0) {
-        newBoard[row][col] = board[row][col] + 1;
+        newBoard[row][col] = board[row][col] + 1 - growthFactor;
       } else {
         newBoard[row][col] = board[row][col];
       }
     }
   }
-  return newBoard;
-}
-
-function nextGameState(gameState, direction) {
-  return {
-    board: nextBoard(gameState),
-    direction,
-    snakeSize: gameState.snakeSize,
+  if (growthFactor > 0) {
+    addFood(newBoard);
   }
+  return {
+    board: newBoard,
+    direction,
+    snakeSize: snakeSize + growthFactor,
+  };
 }
 
 function playGame() {
